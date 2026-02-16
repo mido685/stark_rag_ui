@@ -1,26 +1,325 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* STARK Cyberpunk Neural Network Theme */
+  /* Neon cyan (#00D9FF), Electric purple (#B026FF), Vibrant green (#00FF88) */
+  --primary: #00D9FF;
+  --primary-foreground: #0B0F1A;
+  --sidebar-primary: #B026FF;
+  --sidebar-primary-foreground: #00D9FF;
+  --chart-1: #00D9FF;
+  --chart-2: #B026FF;
+  --chart-3: #00FF88;
+  --chart-4: #00D9FF;
+  --chart-5: #B026FF;
+  --radius: 0.75rem;
+  --background: #0B0F1A;
+  --foreground: #E0E8FF;
+  --card: #1a1f35;
+  --card-foreground: #E0E8FF;
+  --popover: #1a1f35;
+  --popover-foreground: #E0E8FF;
+  --secondary: #B026FF;
+  --secondary-foreground: #E0E8FF;
+  --muted: #2a2f45;
+  --muted-foreground: #8a92b2;
+  --accent: #00D9FF;
+  --accent-foreground: #0B0F1A;
+  --destructive: #FF3366;
+  --destructive-foreground: #0B0F1A;
+  --border: #2a2f45;
+  --input: #1a1f35;
+  --ring: #00D9FF;
+  --sidebar: #0B0F1A;
+  --sidebar-foreground: #E0E8FF;
+  --sidebar-accent: #00D9FF;
+  --sidebar-accent-foreground: #0B0F1A;
+  --sidebar-border: #2a2f45;
+  --sidebar-ring: #00D9FF;
+  /* Custom STARK tokens */
+  --stark-cyan: #00D9FF;
+  --stark-purple: #B026FF;
+  --stark-green: #00FF88;
+  --stark-dark: #0B0F1A;
+  --stark-card-dark: #1a1f35;
+  --stark-border: #2a2f45;
+  --stark-text-light: #E0E8FF;
+  --stark-text-muted: #8a92b2;
+}
+
+.dark {
+  /* STARK theme is dark-first, so .dark uses same values as :root */
+  --primary: #00D9FF;
+  --primary-foreground: #0B0F1A;
+  --sidebar-primary: #B026FF;
+  --sidebar-primary-foreground: #00D9FF;
+  --background: #0B0F1A;
+  --foreground: #E0E8FF;
+  --card: #1a1f35;
+  --card-foreground: #E0E8FF;
+  --popover: #1a1f35;
+  --popover-foreground: #E0E8FF;
+  --secondary: #B026FF;
+  --secondary-foreground: #E0E8FF;
+  --muted: #2a2f45;
+  --muted-foreground: #8a92b2;
+  --accent: #00D9FF;
+  --accent-foreground: #0B0F1A;
+  --destructive: #FF3366;
+  --destructive-foreground: #0B0F1A;
+  --border: #2a2f45;
+  --input: #1a1f35;
+  --ring: #00D9FF;
+  --chart-1: #00D9FF;
+  --chart-2: #B026FF;
+  --chart-3: #00FF88;
+  --chart-4: #00D9FF;
+  --chart-5: #B026FF;
+  --sidebar: #0B0F1A;
+  --sidebar-foreground: #E0E8FF;
+  --sidebar-accent: #00D9FF;
+  --sidebar-accent-foreground: #0B0F1A;
+  --sidebar-border: #2a2f45;
+  --sidebar-ring: #00D9FF;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Inter', sans-serif;
+  }
+
+  .stark-logo {
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [type="button"]:not(:disabled),
+  [type="submit"]:not(:disabled),
+  [type="reset"]:not(:disabled),
+  a[href],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    @apply cursor-pointer;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .flex {
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+      max-width: 1280px;
+    }
+  }
+
+  /* STARK Cyberpunk Neural Network - Glassmorphism Effects */
+  .stark-glass {
+    background: rgba(26, 31, 53, 0.4);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 217, 255, 0.1);
+  }
+
+  .stark-glass-hover:hover {
+    background: rgba(26, 31, 53, 0.6);
+    border-color: rgba(0, 217, 255, 0.3);
+    transition: all 200ms ease;
+  }
+
+  .stark-glow {
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.05);
+  }
+
+  .stark-glow-cyan {
+    box-shadow: 0 0 15px rgba(0, 217, 255, 0.4), 0 0 30px rgba(0, 217, 255, 0.2);
+  }
+
+  .stark-glow-purple {
+    box-shadow: 0 0 15px rgba(176, 38, 255, 0.4), 0 0 30px rgba(176, 38, 255, 0.2);
+  }
+
+  .stark-glow-green {
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.4), 0 0 30px rgba(0, 255, 136, 0.2);
+  }
+
+  .stark-border-gradient {
+    border: 1px solid transparent;
+    background: linear-gradient(rgba(26, 31, 53, 0.5), rgba(26, 31, 53, 0.5)) padding-box, linear-gradient(135deg, #00D9FF, #B026FF, #00FF88) border-box;
+  }
+
+  .stark-border-cyan {
+    border: 1px solid #00D9FF;
+  }
+
+  .stark-border-purple {
+    border: 1px solid #B026FF;
+  }
+
+  .stark-pulse-glow {
+    animation: stark-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes stark-pulse {
+
+    0%,
+    100% {
+      box-shadow: 0 0 15px rgba(0, 217, 255, 0.4), 0 0 30px rgba(0, 217, 255, 0.2);
+    }
+
+    50% {
+      box-shadow: 0 0 25px rgba(0, 217, 255, 0.6), 0 0 40px rgba(0, 217, 255, 0.3);
+    }
+  }
+
+  .stark-transition {
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .stark-message-user {
+    background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(176, 38, 255, 0.1));
+    border: 1px solid rgba(0, 217, 255, 0.3);
+    border-radius: 0.75rem;
+  }
+
+  .stark-message-ai {
+    background: rgba(26, 31, 53, 0.6);
+    border: 1px solid rgba(176, 38, 255, 0.2);
+    border-radius: 0.75rem;
+  }
+
+  .stark-logo-glow {
+    animation: stark-logo-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes stark-logo-pulse {
+
+    0%,
+    100% {
+      text-shadow: 0 0 10px rgba(0, 217, 255, 0.5), 0 0 20px rgba(0, 217, 255, 0.2);
+    }
+
+    50% {
+      text-shadow: 0 0 20px rgba(0, 217, 255, 0.8), 0 0 30px rgba(0, 217, 255, 0.4);
+    }
+  }
+
+  .bg-gradient-premium {
+    background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(176, 38, 255, 0.05), rgba(0, 255, 136, 0.05));
+  }
+
+  .shadow-premium {
+    box-shadow: 0 20px 60px rgba(0, 217, 255, 0.1), 0 0 40px rgba(176, 38, 255, 0.05);
+  }
+
+  .backdrop-blur-premium {
+    backdrop-filter: blur(20px);
+  }
+}
+
+.loader {
+  width: 25px;
+  aspect-ratio: 2;
+  --_g: no-repeat radial-gradient(circle closest-side, #6a7282 90%, #0000);
+  background:
+    var(--_g) 0% 50%,
+    var(--_g) 50% 50%,
+    var(--_g) 100% 50%;
+  background-size: calc(100%/3) 50%;
+  animation: l3 1s infinite linear;
+}
+
+@keyframes l3 {
+  20% {
+    background-position: 0% 0%, 50% 50%, 100% 50%;
+  }
+
+  40% {
+    background-position: 0% 100%, 50% 0%, 100% 50%;
+  }
+
+  60% {
+    background-position: 0% 50%, 50% 100%, 100% 0%;
+  }
+
+  80% {
+    background-position: 0% 50%, 50% 50%, 100% 100%;
+  }
 }
