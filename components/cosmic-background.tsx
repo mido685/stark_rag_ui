@@ -100,22 +100,22 @@ export const CosmicBackground: React.FC = () => {
                 {shootingStars.map((star) => (
                     <motion.div
                         key={star.id}
-                        initial={{ opacity: 0, scale: 0, x: 0, y: 0 }}
+                        initial={{ opacity: 0, scale: 0, x: 0, y: 0, rotate: 45 }}
                         animate={{
                             opacity: [0, 1, 1, 0],
-                            scale: [0, 1, 1, 0.5],
-                            x: 400,
-                            y: 400,
+                            scale: [0, 1, 1, 0.4],
+                            x: 250,
+                            y: 250,
+                            rotate: 45
                         }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: star.duration, ease: "linear" }}
-                        className="absolute h-[2px] w-[100px] bg-linear-to-r from-transparent via-stark-cyan to-white"
+                        className="absolute h-[1px] w-[40px] bg-linear-to-r from-transparent via-stark-cyan/30 to-white"
 
                         style={{
                             left: `${star.x}%`,
                             top: `${star.y}%`,
-                            transform: 'rotate(-45deg)',
-                            filter: 'blur(1px) drop-shadow(0 0 5px #00D9FF)',
+                            filter: 'blur(0.5px) drop-shadow(0 0 2px #00D9FF)',
                         }}
                     />
                 ))}
