@@ -3,6 +3,7 @@ import { Send, Plus, Menu, X, Paperclip, Copy, Trash2, Settings, LogOut } from '
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { CosmicBackground } from './cosmic-background';
 
 interface Message {
   id: string;
@@ -317,85 +318,83 @@ export default function ChatBot() {
         </header>
 
         {/* Chat Messages Area - Premium */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-gradient-to-b from-background via-background to-stark-card-dark/20 relative">
-          {/* Background Pattern */}
-          <div
-            className="absolute inset-0 opacity-5 pointer-events-none"
-            style={{
-              backgroundImage: `url('https://private-us-east-1.manuscdn.com/sessionFile/FvtTlSp62S0Jk73KIvaWKi/sandbox/obj3R72lNbYesodJcjwUZq-img-2_1771233857000_na1fn_c3RhcmstYWJzdHJhY3QtcGF0dGVybg.png?x-oss-process=image/resize,w_1920,h_1920/format,webp/quality,q_80&Expires=1798761600&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9wcml2YXRlLXVzLWVhc3QtMS5tYW51c2Nkbi5jb20vc2Vzc2lvbkZpbGUvRnZ0VGxTcDYyUzBKazczS0l2YVdLaS9zYW5kYm94L29iajNSNzJsTmJZZXNvZEpjandVWnEtaW1nLTJfMTc3MTIzMzg1NzAwMF9uYWZuX2MzUmhjbXN0WWdKemRISmhZM1F0Y0dGMGRHVnliZy5wbmc/eC1vc3MtcHJvY2Vzcz1pbWFnZS9yZXNpemUsd18xOTIwLGhfMTkyMC9mb3JtYXQsd2VicC9xdWFsaXR5LHFfODAiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE3OTg3NjE2MDB9fX1dfQ_&Key-Pair-Id=K2HSFNDJXOU9YS&Signature=JrZ~Nal0RYyOS2y4FZKdfRKwSIlO1h3Udbg~PCimmMFELCpMPMUmsU7q-2hPRckPqhXLbF8LkgyECb7szhlVZDCn47slOWGEV0OG-VrZh8tyYUKJokF8b6cvFbFBFkPFcg86Lg86AhLQNH~zUppyckq5vOdWo9qKkTowE-uDSrtOm4cJWl8YkBbuHj207Z7pgM-Y5fwkWBglFOREfdp4iY8aXajtsYBFVxagM2jrcQ~ihap~7mQQG1qB73pSzZZw9k1IC7K15HK67BC2k~pggcjDlVNLpDvj7hgOw~AKHqEREHNe8W1pGGVwzJlCZSbwoPB8OUUB4fJen8i~5Jd~25N-w__')`,
-            }}
-          ></div>
+        <div className="flex-1 relative overflow-hidden flex flex-col">
+          {/* Persistent Cosmic Background */}
+          <CosmicBackground />
 
-          {/* Messages */}
-          <div className="relative z-10 space-y-6 max-w-6xl mx-auto w-full">
-            {messages.map((message, index) => (
-              <div
-                key={message.id}
-                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} group animate-in fade-in slide-in-from-bottom-4 duration-300`}
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
+          <div className="flex-1 overflow-y-auto p-8 space-y-6 relative z-10">
+
+            {/* Messages */}
+            <div className="relative z-10 space-y-6 max-w-6xl mx-auto w-full">
+              {messages.map((message, index) => (
                 <div
-                  className={`max-w-xl px-6 py-3 stark-transition ${message.sender === 'user'
-                    ? 'stark-message-user stark-glow-cyan hover:stark-glow-cyan'
-                    : 'stark-message-ai stark-glow-purple hover:stark-glow-purple'
-                    }`}
+                  key={message.id}
+                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} group animate-in fade-in slide-in-from-bottom-4 duration-300`}
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <p className="text-base leading-relaxed">{message.text}</p>
-                  <div className="flex items-center justify-between">
-                    <div className="text-xs text-stark-text-muted opacity-70">
-                      {message.timestamp.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                  <div
+                    className={`max-w-xl px-6 py-3 stark-transition ${message.sender === 'user'
+                      ? 'stark-message-user stark-glow-cyan hover:stark-glow-cyan'
+                      : 'stark-message-ai stark-glow-purple hover:stark-glow-purple'
+                      }`}
+                  >
+                    <p className="text-base leading-relaxed">{message.text}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs text-stark-text-muted opacity-70">
+                        {message.timestamp.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </div>
+                      <button
+                        onClick={() => handleCopyMessage(message.text, message.id)}
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:text-stark-cyan stark-transition"
+                      >
+                        <Copy size={16} />
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleCopyMessage(message.text, message.id)}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:text-stark-cyan stark-transition"
-                    >
-                      <Copy size={16} />
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            {/* Loading Indicator */}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className=" stark-message-ai text-gray-500 px-4 py-2">
-                  <div className="loader"></div>
+              {/* Loading Indicator */}
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className=" stark-message-ai text-gray-500 px-4 py-2">
+                    <div className="loader"></div>
+                  </div>
                 </div>
-              </div>
-            )}
-            <div ref={messagesEndRef} />
+              )}
+              <div ref={messagesEndRef} />
+            </div>
           </div>
-        </div>
 
-        {/* Input Bar - Premium */}
-        <div className="bg-gradient-to-t from-background via-background to-transparent border-t border-stark-border/50 p-6 backdrop-blur-sm">
-          <div className="max-w-4xl mx-auto flex gap-4">
-            <button
-              onClick={triggerFileUpload}
-              className="p-3 rounded-lg stark-glass stark-glass-hover stark-transition hover:stark-glow-cyan flex-shrink-0"
-            >
-              <Paperclip size={20} className="text-stark-cyan" />
-            </button>
-
-            <div className="flex-1 flex gap-3">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Type your message... (Shift+Enter for new line)"
-                className="stark-glass h-10 stark-transition focus:stark-glow-cyan border-stark-border bg-stark-card-dark text-foreground placeholder:text-stark-text-muted text-base py-3"
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isLoading}
-                className="bg-sky-400 hover:bg-sky-500 text-stark-dark font-bold rounded-lg px-6 stark-transition stark-glow-cyan  disabled:cursor-not-allowed shadow-lg"
+          {/* Input Bar - Premium */}
+          <div className="bg-gradient-to-t from-background via-background to-transparent border-t border-stark-border/50 p-6 backdrop-blur-sm">
+            <div className="max-w-4xl mx-auto flex gap-4">
+              <button
+                onClick={triggerFileUpload}
+                className="p-3 rounded-lg stark-glass stark-glass-hover stark-transition hover:stark-glow-cyan flex-shrink-0"
               >
-                <Send size={20} />
-              </Button>
+                <Paperclip size={20} className="text-stark-cyan" />
+              </button>
+
+              <div className="flex-1 flex gap-3">
+                <Input
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder="Type your message... (Shift+Enter for new line)"
+                  className="stark-glass h-10 stark-transition focus:stark-glow-cyan border-stark-border bg-stark-card-dark text-foreground placeholder:text-stark-text-muted text-base py-3"
+                />
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!inputValue.trim() || isLoading}
+                  className="bg-sky-400 hover:bg-sky-500 text-stark-dark font-bold rounded-lg px-6 stark-transition stark-glow-cyan  disabled:cursor-not-allowed shadow-lg"
+                >
+                  <Send size={20} />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

@@ -292,6 +292,49 @@
   .backdrop-blur-premium {
     backdrop-filter: blur(20px);
   }
+
+  /* Cosmic Background Animations */
+  .animate-star-twinkle {
+    animation: star-twinkle var(--twinkle-duration) ease-in-out infinite;
+  }
+
+  .animate-star-fall {
+    animation: star-fall var(--fall-duration) linear infinite;
+  }
+
+  @keyframes star-twinkle {
+
+    0%,
+    100% {
+      opacity: 0.3;
+      transform: scale(0.8);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes star-fall {
+    0% {
+      transform: translateY(-100vh) translateX(-50vw);
+      opacity: 0;
+    }
+
+    10% {
+      opacity: 1;
+    }
+
+    90% {
+      opacity: 1;
+    }
+
+    100% {
+      transform: translateY(100vh) translateX(50vw);
+      opacity: 0;
+    }
+  }
 }
 
 .loader {
