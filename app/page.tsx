@@ -12,6 +12,10 @@ interface Message {
   text: string;
   sender: 'user' | 'ai';
   timestamp: Date;
+  file?: {
+    name: string;
+    type: string;
+  };
 }
 
 interface ChatSession {
@@ -127,6 +131,12 @@ export default function ChatBot() {
       text: inputValue,
       sender: 'user',
       timestamp: new Date(),
+      ...(selectedFile && {
+        file: {
+          name: selectedFile.name,
+          type: selectedFile.type || 'FILE'
+        }
+      })
     };
 
     // Update both UI and session store
@@ -361,8 +371,19 @@ export default function ChatBot() {
                     className={`group max-w-[85%] md:max-w-xl px-4 md:px-6 py-2 md:py-3 stark-transition ${message.sender === 'user'
                       ? 'stark-message-user stark-glow-cyan hover:stark-glow-cyan'
                       : 'stark-message-ai stark-glow-purple hover:stark-glow-purple'
-                      } relative`}
+                      } relative flex flex-col gap-2`}
                   >
+                    {message.file && (
+                      <div className=" min-w-16 flex items-center gap-3 py-2 px-3 rounded-lg bg-stark-card-dark/30 border border-white/5 backdrop-blur-sm self-start w-full">
+                        <div className="p-1.5 rounded-md bg-red-500/20 text-red-500 flex-shrink-0">
+                          <FileText size={18} />
+                        </div>
+                        <div className="flex-1 min-w-10 ">
+                          <div className="text-sm font-semibold truncate text-foreground">{message.file.name}</div>
+                          <div className="text-[10px] text-stark-text-muted uppercase tracking-wider">{message.file.type}</div>
+                        </div>
+                      </div>
+                    )}
                     <p className="text-sm md:text-base leading-relaxed">{message.text}</p>
                     <div className="flex items-center justify-between mt-1">
                       <div className="text-[10px] md:text-xs text-stark-text-muted opacity-70">
@@ -439,7 +460,7 @@ export default function ChatBot() {
                     disabled={(!inputValue.trim() && !selectedFile) || isLoading}
                     className="bg-sky-400 hover:bg-sky-500 text-stark-dark font-bold rounded-lg px-4 md:px-6 stark-transition stark-glow-cyan  disabled:cursor-not-allowed shadow-lg"
                   >
-                    <Send size={20} />
+                    <Send size={30} />
                   </Button>
                 </div>
               </div>
