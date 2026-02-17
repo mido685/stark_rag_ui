@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Plus, Menu, X, Paperclip, Copy, Check, Trash2, Settings, LogOut } from 'lucide-react';
+import { Send, Plus, Menu, X, Paperclip, Copy, Check, Trash2, Settings, LogOut, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -41,6 +41,7 @@ export default function ChatBot() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Initial Load from localStorage
   useEffect(() => {
@@ -134,6 +135,7 @@ export default function ChatBot() {
     updateSessionMessages(activeChatId, updatedMessages);
 
     setInputValue('');
+    setSelectedFile(null);
     setIsLoading(true);
 
     // Simulate AI response delay
@@ -160,9 +162,11 @@ export default function ChatBot() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      toast.success(`File "${file.name}" uploaded successfully!`);
-      // In a real app, you'd handle the file upload logic here
+      setSelectedFile(file);
+      toast.success(`File "${file.name}" selected!`);
     }
+    // Reset input value so same file can be selected again
+    e.target.value = '';
   };
 
   const triggerFileUpload = () => {
@@ -392,29 +396,52 @@ export default function ChatBot() {
 
           {/* Input Bar - Premium */}
           <div className="bg-gradient-to-t from-background via-background/80 to-transparent border-t border-stark-border/50 p-4 md:p-6 backdrop-blur-sm z-20">
-            <div className="max-w-4xl mx-auto flex gap-2 md:gap-4">
-              <button
-                onClick={triggerFileUpload}
-                className="p-2 md:p-3 rounded-lg stark-glass stark-glass-hover stark-transition hover:stark-glow-cyan flex-shrink-0"
-              >
-                <Paperclip size={20} className="text-stark-cyan" />
-              </button>
+            <div className="max-w-4xl mx-auto flex flex-col gap-3">
+              {/* File Preview */}
+              {selectedFile && (
+                <div className="flex items-center gap-3 p-3 rounded-xl stark-glass bg-stark-card-dark/50 border-stark-border/50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <div className="p-2 rounded-lg bg-red-500/20 text-red-500">
+                    <FileText className="w-5 h-5 md:w-6 md:h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold truncate text-foreground">{selectedFile.name}</div>
+                    <div className="text-[10px] text-stark-text-muted uppercase tracking-wider">
+                      {selectedFile.type || 'FILE'}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedFile(null)}
+                    className="p-1 hover:bg-white/10 rounded-full stark-transition text-stark-text-muted hover:text-foreground"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              )}
 
-              <div className="flex-1 flex gap-2 md:gap-3">
-                <Input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type your message..."
-                  className="stark-glass h-10 md:h-12 stark-transition focus:stark-glow-cyan border-stark-border bg-stark-card-dark text-foreground placeholder:text-stark-text-muted text-sm md:text-base py-2 md:py-3"
-                />
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!inputValue.trim() || isLoading}
-                  className="bg-sky-400 hover:bg-sky-500 text-stark-dark font-bold rounded-lg px-4 md:px-6 stark-transition stark-glow-cyan  disabled:cursor-not-allowed shadow-lg"
+              <div className="flex gap-2 md:gap-4 w-full">
+                <button
+                  onClick={triggerFileUpload}
+                  className="p-2 md:p-3 rounded-lg stark-glass stark-glass-hover stark-transition hover:stark-glow-cyan flex-shrink-0"
                 >
-                  <Send size={20} />
-                </Button>
+                  <Paperclip size={20} className="text-stark-cyan" />
+                </button>
+
+                <div className="flex-1 flex gap-2 md:gap-3">
+                  <Input
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Type your message..."
+                    className="stark-glass h-10 md:h-12 stark-transition focus:stark-glow-cyan border-stark-border bg-stark-card-dark text-foreground placeholder:text-stark-text-muted text-sm md:text-base py-2 md:py-3"
+                  />
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={(!inputValue.trim() && !selectedFile) || isLoading}
+                    className="bg-sky-400 hover:bg-sky-500 text-stark-dark font-bold rounded-lg px-4 md:px-6 stark-transition stark-glow-cyan  disabled:cursor-not-allowed shadow-lg"
+                  >
+                    <Send size={20} />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
