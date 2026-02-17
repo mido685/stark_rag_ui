@@ -39,10 +39,10 @@ export const CosmicBackground: React.FC = () => {
                 id: i,
                 x: Math.random() * 100,
                 y: Math.random() * 100,
-                size: Math.random() * 2 + 0.5,
-                twinkleDuration: Math.random() * 3 + 2,
-                fallDuration: Math.random() * 15 + 10,
-                delay: Math.random() * -20, // Start at different points in the animation
+                size: Math.random() * 1.5 + 0.5,
+                twinkleDuration: Math.random() * 2 + 1,
+                fallDuration: Math.random() * 10 + 5, // Faster falling
+                delay: Math.random() * -20,
             });
         }
         return generatedStars;
@@ -52,20 +52,20 @@ export const CosmicBackground: React.FC = () => {
     useEffect(() => {
         if (!mounted) return;
         const interval = setInterval(() => {
-            if (Math.random() > 0.7) {
+            if (Math.random() > 0.6) { // More frequent shooting stars
                 const newStar: ShootingStar = {
                     id: Date.now(),
-                    x: Math.random() * 80, // Avoid edge
-                    y: Math.random() * 40, // Top half
-                    duration: 2 + Math.random() * 2,
+                    x: Math.random() * 100,
+                    y: Math.random() * 60,
+                    duration: 1 + Math.random() * 2,
                     delay: 0,
                 };
-                setShootingStars(prev => [...prev.slice(-3), newStar]); // Keep last 4
+                setShootingStars(prev => [...prev.slice(-5), newStar]);
             }
-        }, 4000);
+        }, 3000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [mounted]);
 
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none bg-[#0B0F1A]">
