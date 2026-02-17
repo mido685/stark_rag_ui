@@ -271,7 +271,7 @@ export default function ChatBot() {
             <Settings size={18} className="group-hover:rotate-45 transition-transform duration-500" />
             <span className="text-sm">Settings</span>
           </button>
-          <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-stark-card-dark/50 stark-transition text-stark-text-muted hover:text-stark-green hover:stark-glow-green hover:translate-x-1 group">
+          <button className="w-full flex items-center gap-3 px-3 hover:text-red-500 py-2 rounded-lg hover:bg-stark-card-dark/50 stark-transition text-stark-text-muted hover:text-stark-green hover:stark-glow-green hover:translate-x-1 group">
             <LogOut size={18} className="group-hover:translate-x-1 transition-transform" />
             <span className="text-sm">Logout</span>
           </button>
