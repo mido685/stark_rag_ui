@@ -31,7 +31,8 @@ interface ChatSession {
  * Logo: Centered and enlarged as company centerpiece
  * Color Palette: Deep navy (#0B0F1A), Neon cyan (#00D9FF), Electric purple (#B026FF), Vibrant green (#00FF88)
  */
-const DEFAULT_WELCOME_MESSAGE = "Hello! I'm STARK, your AI assistant. How can I help you today?";
+// Fallback message while connecting to neural network
+const FALLBACK_WELCOME = "Initializing STARK Neural Network link...";
 const STORAGE_KEY = 'stark_chat_data';
 const API_BASE_URL = 'https://uneulogised-liliana-unheedfully.ngrok-free.dev';
 
@@ -48,6 +49,7 @@ export default function ChatBot() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [invoiceLoaded, setInvoiceLoaded] = useState(false);
+  const [apiWelcome, setApiWelcome] = useState<string>('');
 
   // Initial Load from localStorage
   useEffect(() => {
@@ -93,15 +95,32 @@ export default function ChatBot() {
 
         setInvoiceLoaded(data.invoice_loaded);
 
-        // Update welcome message from API
+        // Save welcome message for future "New Chat" sessions
         if (data.message) {
+          setApiWelcome(data.message);
+
+          // Retroactively update the welcome message in history if it's the first one
           const apiWelcomeMessage: Message = {
             id: 'api-init',
             text: data.message,
             sender: 'ai',
             timestamp: new Date(),
           };
-          setMessages(prev => [apiWelcomeMessage, ...prev.filter(m => m.id !== '1')]);
+
+          setMessages(prev => {
+            // Only replace if the first message is the fallback
+            if (prev.length === 1 && prev[0].text === FALLBACK_WELCOME) {
+              return [apiWelcomeMessage];
+            }
+            return prev;
+          });
+
+          setChatSessions(prev => prev.map(session => {
+            if (session.messages.length === 1 && session.messages[0].text === FALLBACK_WELCOME) {
+              return { ...session, messages: [apiWelcomeMessage] };
+            }
+            return session;
+          }));
         }
       } catch (error) {
         console.error("STARK: Connection Error:", error);
@@ -136,8 +155,8 @@ export default function ChatBot() {
   const createNewEmptyChat = () => {
     const defaultMessages: Message[] = [
       {
-        id: '1',
-        text: DEFAULT_WELCOME_MESSAGE,
+        id: Date.now().toString(),
+        text: apiWelcome || FALLBACK_WELCOME,
         sender: 'ai',
         timestamp: new Date(),
       },
@@ -485,7 +504,7 @@ export default function ChatBot() {
                 Clear Context
               </Button>
             )}
-            <div className={`h-2 w-2 rounded-full ${invoiceLoaded ? 'bg-stark-green stark-glow-green' : 'bg-stark-purple stark-glow-purple'} animate-pulse`} />
+            <div className={`h-2 w-2 border bg-green-400 rounded-full ${invoiceLoaded ? 'bg-stark-green stark-glow-green' : 'bg-stark-purple stark-glow-purple'} animate-pulse`} />
             <span className="text-[10px] text-stark-text-muted font-bold uppercase tracking-widest transition-colors">
               {invoiceLoaded ? 'Neural Data Loaded' : 'System Ready'}
             </span>
@@ -546,8 +565,19 @@ export default function ChatBot() {
               {/* Loading Indicator */}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className=" stark-message-ai text-gray-500 px-4 py-2">
-                    <div className="loader"></div>
+                  <div className=" stark-message-ai text-gray-500 px-2 py-1">
+                    <div className="relative">
+                      <div className="absolute inset-0 bg-gradient-to-r from-stark-cyan via-stark-purple to-stark-green rounded-full blur-xl opacity-40 animate-pulse"></div>
+                      <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="relative h-8 w-8 md:h-12 md:w-12 rounded-full object-cover stark-logo-glow drop-shadow-2xl"
+                      >
+                        <source src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663303194648/oWubjrfMnYuOknoT.mp4" type="video/mp4" />
+                      </video>
+                    </div>
                   </div>
                 </div>
               )}
