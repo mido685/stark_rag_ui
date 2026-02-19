@@ -406,7 +406,10 @@ export default function ChatBot() {
                   }`}>
                   {session.title}
                 </div>
-                <div className="text-xs text-stark-text-muted mt-1 opacity-70">
+                <div className="truncate text-[10px] text-stark-text-muted/60 mt-1 italic">
+                  {session.messages.length > 0 ? session.messages[session.messages.length - 1].text : "No messages yet"}
+                </div>
+                <div className="text-[10px] text-stark-text-muted mt-1 opacity-50">
                   {session.createdAt.toLocaleDateString()}
                 </div>
               </button>
@@ -472,7 +475,7 @@ export default function ChatBot() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            {invoiceLoaded && (
+            {invoiceLoaded && messages.some(msg => !!msg.file) && (
               <Button
                 onClick={handleClearInvoice}
                 variant="outline"
