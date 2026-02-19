@@ -33,6 +33,7 @@ interface ChatSession {
  */
 const DEFAULT_WELCOME_MESSAGE = "Hello! I'm STARK, your AI assistant. How can I help you today?";
 const STORAGE_KEY = 'stark_chat_data';
+const API_BASE_URL = 'https://uneulogised-liliana-unheedfully.ngrok-free.dev';
 
 export default function ChatBot() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -46,6 +47,7 @@ export default function ChatBot() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [invoiceLoaded, setInvoiceLoaded] = useState(false);
 
   // Initial Load from localStorage
   useEffect(() => {
@@ -71,6 +73,43 @@ export default function ChatBot() {
     } else {
       createNewEmptyChat();
     }
+
+    // Initialize API Chat
+    const initChat = async () => {
+      console.log("STARK: Initializing neural network link...");
+      try {
+        const response = await fetch(`${API_BASE_URL}/`, {
+          headers: {
+            'ngrok-skip-browser-warning': 'true'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log("STARK: Init Response:", data);
+
+        setInvoiceLoaded(data.invoice_loaded);
+
+        // Update welcome message from API
+        if (data.message) {
+          const apiWelcomeMessage: Message = {
+            id: 'api-init',
+            text: data.message,
+            sender: 'ai',
+            timestamp: new Date(),
+          };
+          setMessages(prev => [apiWelcomeMessage, ...prev.filter(m => m.id !== '1')]);
+        }
+      } catch (error) {
+        console.error("STARK: Connection Error:", error);
+        toast.error("Stark Neural Network unavailable. Please check console (F12).");
+      }
+    };
+
+    initChat();
     setIsLoaded(true);
   }, []);
 
@@ -148,19 +187,70 @@ export default function ChatBot() {
     setSelectedFile(null);
     setIsLoading(true);
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: 'This is a demo response. In a production environment, this would be connected to your AI backend.',
-        sender: 'ai',
-        timestamp: new Date(),
-      };
-      const finalMessages = [...updatedMessages, aiMessage];
-      setMessages(finalMessages);
-      updateSessionMessages(activeChatId, finalMessages);
-      setIsLoading(false);
-    }, 1500);
+    const processAIResponse = async () => {
+      console.log("STARK: Processing message...");
+      try {
+        let aiResponseText = '';
+
+        if (selectedFile) {
+          console.log("STARK: Uploading file:", selectedFile.name);
+          // 2. Upload PDF
+          const form = new FormData();
+          form.append('file', selectedFile); // Key matches guide: 'file'
+
+          const response = await fetch(`${API_BASE_URL}/upload`, {
+            method: 'POST',
+            headers: {
+              'ngrok-skip-browser-warning': 'true'
+            },
+            body: form
+            // ⚠️ guide: DO NOT set Content-Type header
+          });
+
+          if (!response.ok) throw new Error(`Upload failed: ${response.status}`);
+
+          const data = await response.json();
+          console.log("STARK: Upload Success:", data);
+          aiResponseText = data.message;
+          setInvoiceLoaded(data.success);
+        } else {
+          console.log("STARK: Querying:", userMessage.text);
+          // 3. Ask question
+          const response = await fetch(`${API_BASE_URL}/query`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'ngrok-skip-browser-warning': 'true'
+            },
+            body: JSON.stringify({ question: userMessage.text })
+          });
+
+          if (!response.ok) throw new Error(`Query failed: ${response.status}`);
+
+          const data = await response.json();
+          console.log("STARK: Query Result:", data);
+          aiResponseText = data.data.answer;
+          setInvoiceLoaded(data.invoice_loaded);
+        }
+
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: aiResponseText || 'Neural network link established, but no data received.',
+          sender: 'ai',
+          timestamp: new Date(),
+        };
+        const finalMessages = [...updatedMessages, aiMessage];
+        setMessages(finalMessages);
+        updateSessionMessages(activeChatId, finalMessages);
+      } catch (error) {
+        console.error("STARK: API Error:", error);
+        toast.error("STARK: API Error. Please check console (F12).");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    processAIResponse();
   };
 
   const updateSessionMessages = (sessionId: string, newMessages: Message[]) => {
@@ -212,6 +302,40 @@ export default function ChatBot() {
 
     if (newSessions.length === 0) {
       createNewEmptyChat();
+    }
+  };
+
+  const handleClearInvoice = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`${API_BASE_URL}/invoice`, {
+        method: 'DELETE',
+        headers: {
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
+
+      if (!response.ok) throw new Error(`Clear failed: ${response.status}`);
+
+      const data = await response.json();
+
+      const clearMessage: Message = {
+        id: Date.now().toString(),
+        text: data.message,
+        sender: 'ai',
+        timestamp: new Date(),
+      };
+
+      const newMessages = [...messages, clearMessage];
+      setMessages(newMessages);
+      updateSessionMessages(activeChatId, newMessages);
+      setInvoiceLoaded(false);
+      toast.success("Neural context cleared");
+    } catch (error) {
+      console.error("Failed to clear invoice:", error);
+      toast.error("Failed to clear neural context");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -347,8 +471,21 @@ export default function ChatBot() {
             </div>
           </div>
 
-          <div className="hidden md:block">
-            {/* Desktop only header elements if any */}
+          <div className="hidden md:flex items-center gap-4">
+            {invoiceLoaded && (
+              <Button
+                onClick={handleClearInvoice}
+                variant="outline"
+                className="stark-border-cyan text-stark-cyan hover:text-red-400 hover:bg-stark-cyan/10 px-4 py-2 h-auto text-xs font-bold uppercase tracking-widest stark-transition"
+              >
+                <Trash2 size={14} className="mr-2" />
+                Clear Context
+              </Button>
+            )}
+            <div className={`h-2 w-2 rounded-full ${invoiceLoaded ? 'bg-stark-green stark-glow-green' : 'bg-stark-purple stark-glow-purple'} animate-pulse`} />
+            <span className="text-[10px] text-stark-text-muted font-bold uppercase tracking-widest transition-colors">
+              {invoiceLoaded ? 'Neural Data Loaded' : 'System Ready'}
+            </span>
           </div>
         </header>
 
@@ -368,7 +505,7 @@ export default function ChatBot() {
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   <div
-                    className={`group max-w-[85%] md:max-w-xl px-4 md:px-6 py-2 md:py-3 stark-transition ${message.sender === 'user'
+                    className={`group max-w-[85%] md:max-w-xl px-4 bg-black/10 md:px-6 py-2 md:py-3 stark-transition ${message.sender === 'user'
                       ? 'stark-message-user stark-glow-cyan hover:stark-glow-cyan'
                       : 'stark-message-ai stark-glow-purple hover:stark-glow-purple'
                       } relative flex flex-col gap-2`}
